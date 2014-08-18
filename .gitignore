@@ -1,1 +1,4 @@
 .meteor/
+.meteor/local
+.meteor/meteorite
+
