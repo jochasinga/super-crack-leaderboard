@@ -28,6 +28,9 @@ if Meteor.isClient
     if selectedPlayer is this._id
       'selected'
 
+  Template.leaderboard.showSelectedPlayer = ->
+    selectedPlayer = Session.get('selectedPlayer')
+    PlayersList.findOne(selectedPlayer)
     
 if Meteor.isServer
   # execute server-side code      
