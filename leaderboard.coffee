@@ -21,6 +21,13 @@ if Meteor.isClient
         {$inc: {score: 5}}
       )
 
+    'click #decrement': ->
+      selectedPlayer = Session.get('selectedPlayer')
+      PlayersList.update(
+        {_id: selectedPlayer},
+        {$inc: {score: -5}}
+      )
+
     'click #remove': ->
       selectedPlayer = Session.get('selectedPlayer')
       PlayersList.remove(selectedPlayer)
