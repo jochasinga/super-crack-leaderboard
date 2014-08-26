@@ -20,6 +20,20 @@ if Meteor.isClient
         {_id: selectedPlayer},
         {$inc: {score: 5}}
       )
+
+    'click #remove': ->
+      selectedPlayer = Session.get('selectedPlayer')
+      PlayersList.remove(selectedPlayer)
+  }
+
+  Template.addPlayerForm.events {
+    'submit form': (theEvent, theTemplate) ->
+      theEvent.preventDefault()
+      playerNameVar = theTemplate.find('#playerName').value
+      PlayersList.insert {
+        name: playerNameVar
+        score: 0
+      }
   }
 
   # Helper function to add 'selected' class to li element
