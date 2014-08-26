@@ -22,34 +22,22 @@ if Meteor.isClient
 		
     'click #increment': ->
       selectedPlayer = Session.get('selectedPlayer')
-      console.log(selectedPlayer)
-      PlayersList.update(
-        {_id: selectedPlayer},
-        {$inc: {score: 5}}
-      )
+      Meteor.call('updatePlayerScore', selectedPlayer, direction=5)
 
     'click #decrement': ->
       selectedPlayer = Session.get('selectedPlayer')
-      PlayersList.update(
-        {_id: selectedPlayer},
-        {$inc: {score: -5}}
-      )
+      Meteor.call('updatePlayerScore', selectedPlayer, direction=-5)
 		
     'click #remove': ->
       selectedPlayer = Session.get('selectedPlayer')
-      PlayersList.remove(selectedPlayer)
+      Meteor.call('removePlayer', selectedPlayer)
   })
 
   Template.addPlayerForm.events({
     'submit form': (theEvent, theTemplate) ->
       theEvent.preventDefault()
       playerName = theTemplate.find('#playerName').value
-      currentUserId = Meteor.userId()
-      PlayersList.insert(
-        name: playerName
-        score: 0
-        createdBy: currentUserId
-      )
+      Meteor.call('insertPlayerData', playerName)
   })
 
   # Helper function to add 'selected' class to li element
@@ -64,7 +52,27 @@ if Meteor.isClient
     
 if Meteor.isServer
   # execute server-side code
-  Meteor.publish('thePlayers', -> 
-    PlayersList.find()
+  Meteor.publish('thePlayers', ->
+    currentUserId = this.userId
+    PlayersList.find({createdBy: currentUserId}) if currentUserId
   )
+
+  Meteor.methods({
+    'insertPlayerData': (playerName) ->
+      currentUserId = Meteor.userId()
+      PlayersList.insert({
+        name: playerName
+        score: 0
+        createdBy: currentUserId
+      })
+
+    'removePlayer': (selectedPlayer) ->
+      PlayersList.remove(selectedPlayer)
+
+    'updatePlayerScore': (selectedPlayer, direction) ->
+      PlayersList.update(
+        {_id: selectedPlayer},
+        {$inc: {score: direction}}
+      )
+  })
 
