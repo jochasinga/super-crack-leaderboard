@@ -2,21 +2,24 @@ exports = this
 exports.PlayersList = new Meteor.Collection('players')
 
 if Meteor.isClient
+	
+  Meteor.subscribe('thePlayers')
+	
   # Template function for players
   Template.leaderboard.player = ->
     currentUserId = Meteor.userId()
     PlayersList.find(
-      {createdBy: currentUserId},
+      {createdBy: currentUserId}
       {sort: {score: -1, name: 1}}
-    );
+    )
 
   # Event function to add clicked player's id to the session
-  Template.leaderboard.events {
+  Template.leaderboard.events({
     'click li.player': ->
       Session.set('selectedPlayer', this._id)
       selectedPlayer = Session.get('selectedPlayer')
       console.log(selectedPlayer)
-   
+		
     'click #increment': ->
       selectedPlayer = Session.get('selectedPlayer')
       console.log(selectedPlayer)
@@ -31,13 +34,13 @@ if Meteor.isClient
         {_id: selectedPlayer},
         {$inc: {score: -5}}
       )
-
+		
     'click #remove': ->
       selectedPlayer = Session.get('selectedPlayer')
       PlayersList.remove(selectedPlayer)
-  }
+  })
 
-  Template.addPlayerForm.events {
+  Template.addPlayerForm.events({
     'submit form': (theEvent, theTemplate) ->
       theEvent.preventDefault()
       playerName = theTemplate.find('#playerName').value
@@ -47,7 +50,7 @@ if Meteor.isClient
         score: 0
         createdBy: currentUserId
       )
-  }
+  })
 
   # Helper function to add 'selected' class to li element
   Template.leaderboard.selectedClass = ->
@@ -60,5 +63,8 @@ if Meteor.isClient
     PlayersList.findOne(selectedPlayer)
     
 if Meteor.isServer
-  # execute server-side code      
-  null
+  # execute server-side code
+  Meteor.publish('thePlayers', -> 
+    PlayersList.find()
+  )
+
