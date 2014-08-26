@@ -4,7 +4,11 @@ exports.PlayersList = new Meteor.Collection('players')
 if Meteor.isClient
   # Template function for players
   Template.leaderboard.player = ->
-    PlayersList.find {}, {sort: {score: -1, name: 1}}
+    currentUserId = Meteor.userId()
+    PlayersList.find(
+      {createdBy: currentUserId},
+      {sort: {score: -1, name: 1}}
+    );
 
   # Event function to add clicked player's id to the session
   Template.leaderboard.events {
@@ -36,11 +40,13 @@ if Meteor.isClient
   Template.addPlayerForm.events {
     'submit form': (theEvent, theTemplate) ->
       theEvent.preventDefault()
-      playerNameVar = theTemplate.find('#playerName').value
-      PlayersList.insert {
-        name: playerNameVar
+      playerName = theTemplate.find('#playerName').value
+      currentUserId = Meteor.userId()
+      PlayersList.insert(
+        name: playerName
         score: 0
-      }
+        createdBy: currentUserId
+      )
   }
 
   # Helper function to add 'selected' class to li element
